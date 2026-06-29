@@ -1,0 +1,30 @@
+<section class="mb-6 p-6 rounded-2xl bg-white shadow-sm border border-slate-200">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">My RSVPs</h1>
+            <p class="text-slate-500 mt-1">
+                Manage your upcoming and past event registrations.
+            </p>
+        </div>
+        <div class="text-sm text-slate-400">
+            <span class="px-3 py-1 rounded-full bg-slate-100">Dashboard</span>
+        </div>
+    </div>
+</section>
+
+<% if (pageError) { %>
+    <%- include("../partials/error", { message: pageError }) %>
+        <% } %>
+
+            <% const upcomingList=upcoming ?? []; %>
+                <% const pastList=pastCancelled ?? []; %>
+
+                    <section class="mb-6">
+                        <%- include("partials/rsvp-section", { title: "Upcoming Events" , variant: "upcoming" ,
+                            emptyMessage: "You have no upcoming RSVPs." , items: upcomingList, showCancel: true }) %>
+                    </section>
+
+                    <section class="mb-6">
+                        <%- include("partials/rsvp-section", { title: "Past & Cancelled Events" , variant: "past" ,
+                            emptyMessage: "No past or cancelled RSVPs." , items: pastList, showCancel: false }) %>
+                    </section>

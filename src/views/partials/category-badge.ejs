@@ -1,0 +1,13 @@
+<% const categoryStyles={ technology: "bg-blue-100 text-blue-700" , business: "bg-emerald-100 text-emerald-700" ,
+    music: "bg-pink-100 text-pink-700" , art: "bg-purple-100 text-purple-700" , food: "bg-orange-100 text-orange-700" ,
+    health: "bg-green-100 text-green-700" , education: "bg-indigo-100 text-indigo-700" ,
+    sports: "bg-red-100 text-red-700" , gaming: "bg-violet-100 text-violet-700" ,
+    networking: "bg-cyan-100 text-cyan-700" , party: "bg-fuchsia-100 text-fuchsia-700" ,
+    holiday: "bg-rose-100 text-rose-700" , birthday: "bg-yellow-100 text-yellow-700" ,
+    graduation: "bg-sky-100 text-sky-700" , wedding: "bg-pink-100 text-pink-700" , "movies and tv"
+    : "bg-slate-200 text-slate-700" , other: "bg-slate-100 text-slate-600" }; const style=categoryStyles[category]
+    || "bg-slate-100 text-slate-600" ; %>
+
+    <span class="inline-flex w-fit items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize <%= style %>">
+        <%= category %>
+    </span>

@@ -1,0 +1,110 @@
+<div
+  id="rsvp-section"
+  x-data="{ isUpdating: false }"
+  x-on:htmx:before-request="isUpdating = true"
+  x-on:htmx:after-swap="isUpdating = false"
+  x-transition.opacity.duration.200ms
+  class="pt-4 border-t border-slate-200 space-y-4"
+>
+  <% if (typeof includeOobAttendeeCount === "undefined" || includeOobAttendeeCount) { %>
+    <p
+      id="attendee-count-display"
+      hx-swap-oob="true"
+      class="mt-1 text-slate-900 font-medium"
+    >
+      <%= attendeeCount %>
+      <% if (event.capacity !== null) { %>
+        / <%= event.capacity %>
+      <% } else { %>
+        / No limit
+      <% } %>
+    </p>
+  <% } %>
+
+  <p class="text-lg text-slate-900 mb-2">
+    <strong>Attendance</strong>
+  </p>
+
+  <% if (typeof rsvpMessage !== "undefined" && rsvpMessage) { %>
+    <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
+      <%= rsvpMessage %>
+    </div>
+  <% } %>
+
+  <% if (typeof overlapWarning !== "undefined" && overlapWarning) { %>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 flex items-start gap-2">
+      <span class="mt-0.5">⚠️</span>
+      <span><%= overlapWarning %></span>
+    </div>
+  <% } %>
+
+  <% if (user.role === "user") { %>
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+      <% if (!userRSVP || userRSVP.status === "cancelled") { %>
+        <p class="text-sm text-slate-700">
+          You are not RSVP'd for this event.
+        </p>
+      <% } else if (userRSVP.status === "going") { %>
+        <p class="text-sm text-green-700 font-semibold">
+          You are currently RSVP'd for this event.
+        </p>
+      <% } else if (userRSVP.status === "waitlisted") { %>
+        <p class="text-sm text-yellow-700 font-semibold">
+          You are currently on the waitlist for this event.
+        </p>
+      <% } %>
+
+      <form
+        method="post"
+        action="/events/<%= event.id %>/rsvp"
+        hx-post="/events/<%= event.id %>/rsvp"
+        hx-target="#rsvp-section"
+        hx-swap="outerHTML settle:200ms"
+        class="space-y-3"
+      >
+
+        <% if (!userRSVP || userRSVP.status === "cancelled") { %>
+          <button
+            type="submit"
+            x-on:click="$confetti({
+              particleCount: 300,
+              spread: 180,
+              startVelocity: 50,
+              gravity: 0.2,
+              drift: 0,
+              ticks: 300,
+              scalar: 1.3,
+              origin: { x: 0.5, y: 0.5 }
+            })"
+            x-bind:class="isUpdating ? 'opacity-60 scale-95' : 'opacity-100 scale-100'"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-200"
+          >
+            RSVP
+          </button>
+        <% } else { %>
+          <button
+            type="submit"
+            x-bind:class="isUpdating ? 'opacity-60 scale-95' : 'opacity-100 scale-100'"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-200"
+          >
+            Cancel RSVP
+          </button>
+        <% } %>
+      </form>
+
+      <% if (event.capacity !== null && attendeeCount >= event.capacity) { %>
+        <p class="text-xs text-slate-500">
+          This event is currently at capacity. New RSVPs may be added to the waitlist.
+        </p>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (user.role === "staff" || user.role === "admin") { %>
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <p class="text-sm text-slate-600">
+        Staff and admins cannot RSVP to events.
+      </p>
+    </div>
+  <% } %>
+</div>

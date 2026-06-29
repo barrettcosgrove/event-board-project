@@ -1,0 +1,151 @@
+<div id="create-form-container" class="max-w-2xl mx-auto p-6">
+  <% if (pageError) { %>
+    <%- include('../partials/error', { message: pageError }) %>
+  <% } %>
+
+  <div class="bg-white rounded-xl shadow p-6 space-y-6">
+
+    <div class="space-y-1">
+      <h1 class="text-3xl font-bold text-slate-900">Create New Event</h1>
+      <p class="text-sm text-slate-500">Fill out the details below to create a new draft event.</p>
+    </div>
+
+    <form
+      method="POST"
+      action="/events/new"
+      class="space-y-5"
+      hx-post="/events/new"
+      hx-target="#create-form-container"
+      hx-swap="outerHTML"
+    >
+
+      <div class="space-y-1">
+        <label for="title" class="block text-sm font-semibold text-slate-700">
+          Title <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value="<%= formData.title ?? '' %>"
+          required
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
+
+      <div class="space-y-1" x-data="{ count: <%= (formData.description ?? '').length %> }">
+        <div class="flex justify-between items-center">
+          <label for="description" class="block text-sm font-semibold text-slate-700">
+            Description <span class="text-red-500">*</span>
+          </label>
+          <span
+            class="text-xs"
+            :class="count > 500 ? 'text-red-500 font-medium' : 'text-slate-400'"
+            x-text="count + ' / 500 characters'"
+          ></span>
+        </div>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          required
+          maxlength="500"
+          x-on:input="count = $event.target.value.length"
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        ><%= formData.description ?? '' %></textarea>
+      </div>
+
+      <div class="space-y-1">
+        <label for="location" class="block text-sm font-semibold text-slate-700">
+          Location <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          value="<%= formData.location ?? '' %>"
+          required
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label for="category" class="block text-sm font-semibold text-slate-700">
+          Category <span class="text-red-500">*</span>
+        </label>
+        <select
+          id="category"
+          name="category"
+          required
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        >
+          <option value="">Select a category</option>
+          <% const categories = ["technology", "business", "music", "art", "food", "health", "education", "sports", "gaming", "networking", "party", "holiday", "birthday", "graduation", "wedding", "movies and tv", "other"]; %>
+          <% categories.forEach(function(cat) { %>
+            <option value="<%= cat %>" <%= formData.category === cat ? 'selected' : '' %>>
+              <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label for="startDatetime" class="block text-sm font-semibold text-slate-700">
+            Start Date & Time <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            id="startDatetime"
+            name="startDatetime"
+            value="<%= formData.startDatetime ?? '' %>"
+            required
+            class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label for="endDatetime" class="block text-sm font-semibold text-slate-700">
+            End Date & Time <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            id="endDatetime"
+            name="endDatetime"
+            value="<%= formData.endDatetime ?? '' %>"
+            required
+            class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="capacity" class="block text-sm font-semibold text-slate-700">
+          Capacity
+          <span class="text-slate-400 font-normal">(leave blank for no limit)</span>
+        </label>
+        <input
+          type="number"
+          id="capacity"
+          name="capacity"
+          min="1"
+          value="<%= formData.capacity ?? '' %>"
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button
+          type="submit"
+          class="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+        >
+          Create Event
+        </button>
+        <a href="/events" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 no-underline">
+          Cancel
+        </a>
+      </div>
+
+    </form>
+  </div>
+</div>

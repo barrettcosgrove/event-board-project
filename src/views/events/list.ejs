@@ -1,0 +1,171 @@
+<section class="mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-3xl font-bold text-slate-900">Upcoming Events</h1>
+    <div class="flex items-center gap-2">
+      <% if (session.authenticatedUser && session.authenticatedUser.role==="user" ) { %>
+        <a href="/rsvps"
+          class="px-4 py-2 text-sm font-medium border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 no-underline">
+          My RSVPs
+        </a>
+        <% } %>
+
+          <% if (session.authenticatedUser && (session.authenticatedUser.role==="staff" ||
+            session.authenticatedUser.role==="admin" )) { %>
+
+            <a href="/events/dashboard"
+              class="px-4 py-2 text-sm font-medium border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 no-underline">
+              Dashboard
+            </a>
+
+            <a href="/events/new"
+              class="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 no-underline">
+              + Create Event
+            </a>
+            <% } %>
+    </div>
+  </div>
+
+  <div x-data="{
+    category: '<%= activeCategory ?? '' %>',
+    timeframe: '<%= activeTimeframe ?? 'all' %>',
+    searchQuery: '<%= (searchQuery ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'") %>',
+    get hasFilters() {
+      return this.searchQuery.trim() !== '' || this.category !== '' || this.timeframe !== 'all';
+    }
+  }">
+  <form id="event-search-form" method="GET" action="/events"
+    class="mb-6 p-4 sm:p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="searchQuery" class="text-sm font-semibold text-slate-700">
+        Search upcoming events
+      </label>
+      <div class="relative w-full">
+        <input
+          id="searchQuery"
+          name="searchQuery"
+          type="search"
+          maxlength="100"
+          x-model="searchQuery"
+          value="<%= searchQuery ?? '' %>"
+          placeholder="Search by title, description, or location"
+          hx-get="/events"
+          hx-trigger="input changed delay:400ms, search"
+          hx-target="#event-results"
+          hx-swap="innerHTML"
+          hx-include="#event-search-form"
+          hx-push-url="true"
+          hx-indicator="#event-results-loading"
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 pr-20 text-base text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
+        <button
+          type="button"
+          x-show="searchQuery.length > 0"
+          style="display: none;"
+          x-transition.opacity.duration.150ms
+          @click="searchQuery = ''; $nextTick(() => { const input = document.getElementById('searchQuery'); input.dispatchEvent(new Event('input', { bubbles: true })); input.focus(); })"
+          class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-slate-500 transition hover:bg-slate-200 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label="Clear search"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex items-center gap-2">
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label for="category" class="text-sm font-medium text-slate-700">
+        Category
+      </label>
+      <select id="category" name="category"
+        x-model="category"
+        hx-get="/events"
+        hx-trigger="change"
+        hx-target="#event-results"
+        hx-swap="innerHTML"
+        hx-include="#event-search-form"
+        hx-push-url="true"
+        hx-indicator="#event-results-loading"
+        class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+        :class="category !== '' ? 'ring-2 ring-blue-300 border-blue-300 font-semibold text-blue-700' : ''">
+        <option value="">All categories</option>
+        <% const categories=["technology", "business", "music", "art", "food", "health", "education", "sports",
+          "gaming", "networking", "party", "holiday", "birthday", "graduation", "wedding", "movies and tv",
+          "other"]; %>
+        <% categories.forEach(function(cat) { %>
+          <option value="<%= cat %>" <%= activeCategory === cat ? "selected" : "" %>>
+            <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+          </option>
+        <% }); %>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label for="timeframe" class="text-sm font-medium text-slate-700">
+        When
+      </label>
+      <select id="timeframe" name="timeframe"
+        x-model="timeframe"
+        hx-get="/events"
+        hx-trigger="change"
+        hx-target="#event-results"
+        hx-swap="innerHTML"
+        hx-include="#event-search-form"
+        hx-push-url="true"
+        hx-indicator="#event-results-loading"
+        class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+        :class="timeframe !== 'all' ? 'ring-2 ring-blue-300 border-blue-300 font-semibold text-blue-700' : ''">
+        <option value="all" <%= activeTimeframe === "all" || !activeTimeframe ? "selected" : "" %>>All upcoming</option>
+        <option value="this_week" <%= activeTimeframe === "this_week" ? "selected" : "" %>>This week</option>
+        <option value="this_month" <%= activeTimeframe === "this_month" ? "selected" : "" %>>This month</option>
+        <option value="this_year" <%= activeTimeframe === "this_year" ? "selected" : "" %>>This year</option>
+      </select>
+    </div>
+
+    <button type="submit"
+      class="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+      x-data
+      x-show="false"
+      style="display: none"
+    >
+      Apply
+    </button>
+    <noscript>
+  <button type="submit"
+    class="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+  >
+    Apply
+  </button>
+</noscript>
+    </div>
+  </form>
+
+  <div class="mb-4">
+    <a href="/events"
+      x-show="hasFilters"
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="transition ease-in duration-150"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      class="text-sm text-slate-500 hover:text-slate-700 hover:underline no-underline">
+      Clear search and filters
+    </a>
+  </div>
+</div>
+
+      <% if (pageError) { %>
+        <%- include("../partials/error", { message: pageError }) %>
+          <% } %>
+
+      <p id="event-results-loading" class="htmx-indicator text-sm text-slate-500 mb-3" role="status" aria-live="polite">
+        Updating events...
+      </p>
+
+      <div id="event-results" class="grid gap-4" aria-live="polite">
+        <%- include("results", { events }) %>
+      </div>
+</section>

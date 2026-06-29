@@ -1,0 +1,28 @@
+<section class="mb-5 p-6 border border-slate-200 rounded-2xl bg-gradient-to-b from-white to-slate-50 shadow-sm">
+  <h1 class="text-3xl font-bold text-slate-900 mb-3">
+    <%= user.role==="admin" ? "All Events" : "My Events" %>
+  </h1>
+  <p class="text-slate-500">
+    <%= user.role==="admin" ? "Manage all events across organizers."
+      : "Manage your events — publish drafts, track attendance, and cancel when needed." %>
+  </p>
+</section>
+
+<% if (pageError) { %>
+  <%- include("../partials/error", { message: pageError }) %>
+    <% } %>
+
+      <!-- PUBLISHED -->
+      <%- include("partials/event-dashboard-section", { title: "Published" , variant: "published" , items: published,
+        emptyMessage: "No published events." , showPublish: false, showCancel: true }) %>
+
+        <!-- DRAFTS -->
+        <%- include("partials/event-dashboard-section", { title: "Drafts" , variant: "draft" , items: draft,
+          emptyMessage: "No draft events." , showPublish: true, showCancel: true }) %>
+
+          <!-- CANCELLED + PAST -->
+          <%- include("partials/event-dashboard-section", { title: "Cancelled & Past" , variant: "past" , items:
+            cancelledOrPast, emptyMessage: "No cancelled or past events." , showPublish: false, showCancel: false,
+            collapsible: true }) %>
+
+            </div>
