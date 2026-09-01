@@ -1,223 +1,189 @@
-# Project Starter
+# Local Event Board
 
-A starter application for team projects that provides authentication, role-based authorization, HTTPS, and session management out of the box. Your team can focus on building project features instead of reimplementing auth infrastructure.
+## Description
+Local Event Board is a role-based event management application that lets organizers create and manage events while giving members a simple way to browse listings, filter by category and date, and RSVP to upcoming activities. The platform is designed to support admin, staff, and user workflows with protected access, attendee tracking, event publishing, and conflict-aware RSVP handling.
 
-## Quick Start
+## Overview
+This project is designed for a small organization or community group that needs a simple but structured way to manage events and attendance online. Instead of relying on a generic scheduling tool, Local Event Board centers the workflow around a few clear roles: admins manage the platform, staff organize and publish events, and members browse upcoming activities and respond to invitations.
 
-```bash
-# 1. Install dependencies
-npm install
+The experience is intentionally lightweight and local-first. Events are easy to create and update, filtered quickly by category and date, and presented in a dashboard-friendly interface that supports RSVP decisions, conflict awareness, and attendance visibility. The app combines a server-rendered interface with interactive UI enhancements so it feels responsive without becoming overly complex.
 
-# 2. Generate the Prisma client
-npx prisma generate
+## Demo
+A local demo is available by running the app and visiting:
 
-# 3. Build and run
-npm run dev
-```
+- https://localhost:3443
 
-The app starts on **https://localhost:3443**. Your browser will show a certificate warning because the included certs are self-signed, this is expected for local development. Accept the warning to proceed.
+> The app is served over HTTPS with a self-signed certificate for local development. Your browser will show a certificate warning the first time, which you can accept to continue.
 
-An HTTP server on port 3000 automatically redirects to HTTPS.
+### Demo accounts
+The seeded application includes the following demo users:
 
-## Demo Users
+| Email | Display Name | Role | Password |
+| --- | --- | --- | --- |
+| admin@app.test | Avery Admin | admin | password123 |
+| staff@app.test | Sam Staff | staff | password123 |
+| user@app.test | Una User | user | password123 |
 
-Three demo accounts are available out of the box. All passwords are `password123`.
+### Screenshot
+A polished product screenshot will be added here later once the UI is finalized for presentation.
 
-| Email            | Display Name | Role    |
-| ---------------- | ------------ | ------- |
-| `admin@app.test` | Avery Admin  | `admin` |
-| `staff@app.test` | Sam Staff    | `staff` |
-| `user@app.test`  | Una User     | `user`  |
+## Key Features
 
-These users are stored in memory with pre-hashed passwords (scrypt). They reset every time the server restarts.
-
-## Authorization Roles
-
-The starter enforces three roles with different permission levels:
-
-- **Admin** -> Full access. Can manage users (create/delete) via `/admin/users`.
-- **Staff** -> Authenticated access to all non-admin pages.
-- **User** -> Authenticated read-only access.
-
-Use the `requireAuthenticated` and `requireRole` helper methods in `src/app.ts` to protect your own routes.
-
-## Project Structure
-
-```
-project-starter/
-├── src/
-│   ├── auth/                    # Authentication & authorization (do not modify)
-│   │   ├── AdminUserService.ts  #   Admin user management (create/delete users)
-│   │   ├── AuthController.ts    #   HTTP handlers for login/logout/user management
-│   │   ├── AuthService.ts       #   Core authentication logic (verify credentials)
-│   │   ├── InMemoryUserRepository.ts  # Demo user storage with hashed passwords
-│   │   ├── PasswordHasher.ts    #   Scrypt password hashing with timing-safe comparison
-│   │   ├── User.ts              #   User model types and role definitions
-│   │   ├── UserRepository.ts    #   User storage interface
-│   │   └── errors.ts            #   Auth-specific error types
-│   ├── lib/
-│   │   └── result.ts            # Generic Result<T, E> type for error handling
-│   ├── service/
-│   │   └── LoggingService.ts    # Simple timestamped logging
-│   ├── session/
-│   │   └── AppSession.ts        # Session management (browser tracking + auth state)
-│   ├── views/
-│   │   ├── auth/
-│   │   │   ├── login.ejs        # Login page
-│   │   │   ├── users.ejs        # Admin user management page
-│   │   │   └── partials/error.ejs
-│   │   ├── layouts/
-│   │   │   └── base.ejs         # Master layout with navigation bar
-│   │   ├── partials/
-│   │   │   └── error.ejs        # Shared error banner partial
-│   │   └── home.ejs             # Placeholder home page (replace with your own)
-│   ├── static/                  # Static assets directory (create to add your own)
-│   ├── app.ts                   # Express app setup, middleware, and route registration
-│   ├── composition.ts           # Dependency injection / wiring
-│   ├── contracts.ts             # IApp and IServer interfaces
-│   └── server.ts                # HTTPS server startup with HTTP redirect
-├── test/
-│   ├── auth/
-│   │   ├── AuthService.test.ts  # Authentication tests
-│   │   └── AdminUserService.test.ts  # Admin user management tests
-│   └── smoke.test.ts            # Basic Result type tests
-├── prisma/
-│   └── schema.prisma            # Database schema (add your models here)
-├── certs/                       # Self-signed HTTPS certificates for development
-├── .env                         # Environment variables
-├── package.json
-├── tsconfig.json
-└── jest.config.cjs
-```
-
-## Where to Start Building
-
-### 1. Define Your Data Model
-
-Edit `prisma/schema.prisma` to add your project's database tables, then run:
-
-```bash
-npx prisma migrate dev --name your-migration-name
-```
-
-### 2. Create Your Service and Repository Layers
-
-Follow the existing patterns in `src/auth/` as a reference:
-
-- **Model** -> Define TypeScript types for your data (like `src/auth/User.ts`).
-- **Repository** -> Create a storage interface and implementation (like `UserRepository.ts` and `InMemoryUserRepository.ts`). You can start with an in-memory implementation and swap to Prisma later.
-- **Service** -> Write business logic that validates input and delegates to the repository (like `AuthService.ts`). Use the `Result<T, E>` type from `src/lib/result.ts` for error handling.
-
-### 3. Create Controllers
-
-Build HTTP handlers that translate between web requests and your service layer (like `AuthController.ts`). Controllers handle request parsing, call services, and render views.
-
-### 4. Add Routes
-
-Register your routes in `src/app.ts` inside the `registerRoutes` method. Use the built-in auth helpers:
-
-```typescript
-// Require any authenticated user
-this.app.get(
-  '/your-page',
-  asyncHandler(async (req, res) => {
-    if (!this.requireAuthenticated(req, res)) return
-    // ... your handler logic
-  })
-)
-
-// Require specific roles
-this.app.post(
-  '/admin-action',
-  asyncHandler(async (req, res) => {
-    if (
-      !this.requireRole(
-        req,
-        res,
-        ['admin', 'staff'],
-        'Insufficient permissions.'
-      )
-    )
-      return
-    // ... your handler logic
-  })
-)
-```
-
-### 5. Create Views
-
-Add EJS templates in `src/views/`. The master layout (`layouts/base.ejs`) provides the navigation bar and page shell automatically. Your views just need to provide the page content.
-
-### 6. Wire It Together
-
-Update `src/composition.ts` to instantiate and inject your new services, repositories, and controllers. Pass your controller(s) to `CreateApp`.
-
-## Available Scripts
-
-| Script                   | Description                                   |
-| ------------------------ | --------------------------------------------- |
-| `npm run dev`            | Build TypeScript and start the HTTPS server   |
-| `npm run build`          | Compile TypeScript to `dist/`                 |
-| `npm test`               | Run the test suite with Jest                  |
-| `npm run test:watch`     | Run tests in watch mode                       |
-| `npx prisma generate`    | Regenerate Prisma client after schema changes |
-| `npx prisma migrate dev` | Create and apply a database migration         |
+- Role-based access control for admins, staff organizers, and regular members
+- Event creation, editing, publishing, and cancellation flows
+- Event search and filtering by category, date range, and status
+- Detailed event pages with organizer metadata and attendee counts
+- RSVP toggling with waitlist logic and conflict detection for overlapping events
+- Organizer dashboard to track event performance and ownership
+- Attendee listing grouped by RSVP status for each event
+- Session-based authentication and secure local HTTPS setup
+- SQLite-backed persistence through Prisma for reliable local development
 
 ## Tech Stack
 
-- **Runtime**: Node.js with TypeScript
-- **Framework**: Express 5
-- **Templating**: EJS with express-ejs-layouts
-- **CSS**: Tailwind CSS v4 (via CDN)
-- **Frontend Interactivity**: Alpine.js 3 + HTMX 2.0
-- **Database**: SQLite via Prisma ORM
-- **Password Hashing**: Node.js scrypt (timing-safe)
-- **Sessions**: express-session (in-memory, server-side)
-- **Transport Security**: HTTPS with self-signed certificates
-- **Testing**: Jest with ts-jest and supertest
+### Languages
+- TypeScript
+- SQL (Prisma schema + SQLite database)
+- HTML / EJS templates
+- CSS utility classes via Tailwind
 
-### Tailwind CSS
+### Frameworks and runtime
+- Node.js
+- Express.js
+- EJS with express-ejs-layouts
+- Prisma ORM
 
-Tailwind CSS v4 is loaded via the [Play CDN](https://tailwindcss.com/docs/installation/play-cdn), which means no build step is required. Just use Tailwind utility classes directly in your EJS templates. The CDN approach is ideal for development and prototyping.
+### Database
+- SQLite via Prisma
+- Prisma migrations and schema management
 
-### Alpine.js
+### Key libraries and tools
+- `@prisma/client` + `prisma`
+- `better-sqlite3` with Prisma adapter
+- `express-session` for authenticated sessions
+- `dotenv` for environment configuration
+- `supertest` and `jest` for testing
+- `ts-jest` and `ts-node` for TypeScript test and dev execution
+- Tailwind CSS via CDN
+- Alpine.js and HTMX for interactive UI behavior
 
-[Alpine.js](https://alpinejs.dev/) is included via CDN for lightweight client-side interactivity. Use directives like `x-data`, `x-show`, `x-bind`, `@click`, and `x-transition` directly in your HTML. The home page includes a working demo. Alpine.js works great alongside HTMX, use Alpine for client-side UI state and HTMX for server-driven updates.
+## Getting Started
 
-## Architecture Concepts
+### Prerequisites
+- Node.js 18 or newer
+- npm
+- Git
 
-### Result Type
+### Installation
 
-All services use a functional `Result<T, E>` type instead of throwing exceptions. Every service method returns either `Ok(value)` for success or `Err(error)` for failure. This keeps error handling explicit and composable.
-
-```typescript
-import { Ok, Err, type Result } from './lib/result'
-
-async function doSomething(): Promise<Result<string, MyError>> {
-  if (somethingWrong) return Err({ name: 'BadInput', message: '...' })
-  return Ok('success')
-}
+```bash
+git clone <repository-url>
+cd team1-event-board
+npm install
 ```
 
-### Dependency Injection
+### Database setup
 
-The `composition.ts` file wires all dependencies together in one place. This makes it easy to swap implementations (e.g., in-memory storage to database-backed) and to inject test doubles in your tests.
+Generate Prisma client and create/apply the local SQLite schema:
 
-### Session Management
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+```
 
-Sessions track browser identity and authentication state. The `AppSession` module provides helper functions for reading/writing session data without touching the raw session object directly. Passwords are never stored in the session, only the authenticated user's identity and role.
+If you want to seed the app with demo users and sample events, run:
 
-### HTTPS
+```bash
+npx ts-node prisma/seed.ts
+```
 
-The app runs over HTTPS even in development. Self-signed certificates in `certs/` are provided for convenience. In production, use real certificates.
+### Run locally
+
+```bash
+npm run dev
+```
+
+Then open:
+
+```text
+https://localhost:3443
+```
+
+The app automatically redirects traffic from http://localhost:3000 to the HTTPS endpoint.
+
+## Project Scripts
+
+```bash
+npm run dev         # Build TypeScript and start the app
+npm run build       # Compile the project to dist/
+npm test           # Run the Jest suite
+npm run test:watch  # Run Jest in watch mode
+npx prisma generate # Regenerate Prisma client
+npx prisma migrate dev --name init # Apply migrations
+```
+
+## Project Architecture
+
+The application follows a layered architecture that separates HTTP concerns, business logic, and data access.
+
+### 1. Presentation layer
+The Express app in [src/app.ts](src/app.ts) wires up middleware, session management, EJS rendering, and route registration. The UI is rendered with EJS templates under [src/views](src/views), and the shared shell layout lives in [src/views/layouts/base.ejs](src/views/layouts/base.ejs).
+
+### 2. Controller layer
+Controllers handle request parsing and coordinate between the web layer and the service layer. Examples include:
+- [src/auth/AuthController.ts](src/auth/AuthController.ts)
+- [src/events/EventController.ts](src/events/EventController.ts)
+- [src/rsvp/RsvpController.ts](src/rsvp/RsvpController.ts)
+
+These controllers validate inputs, enforce access rules, and render the appropriate views or responses.
+
+### 3. Service layer
+Business rules live in service classes such as:
+- [src/auth/AuthService.ts](src/auth/AuthService.ts)
+- [src/auth/AdminUserService.ts](src/auth/AdminUserService.ts)
+- [src/events/EventService.ts](src/events/EventService.ts)
+- [src/rsvp/RsvpService.ts](src/rsvp/RsvpService.ts)
+
+This layer contains the core application logic, including validation, organizer permissions, RSVP transitions, and event status changes.
+
+### 4. Repository layer
+The repository layer abstracts storage implementation details. The project supports both in-memory and Prisma-backed persistence through interfaces and implementations such as:
+- [src/events/EventRepository.ts](src/events/EventRepository.ts)
+- [src/events/PrismaEventRepository.ts](src/events/PrismaEventRepository.ts)
+- [src/rsvp/RsvpRepository.ts](src/rsvp/RsvpRepository.ts)
+- [src/rsvp/PrismaRsvpRepository.ts](src/rsvp/PrismaRsvpRepository.ts)
+
+The composition layer in [src/composition.ts](src/composition.ts) decides which implementation to inject, so the app can switch between local in-memory data and SQLite-backed Prisma storage.
+
+### 5. Data and persistence
+The schema in [prisma/schema.prisma](prisma/schema.prisma) defines the application’s core models:
+- `User`
+- `Event`
+- `RSVP`
+
+The app stores this data in a SQLite database and uses Prisma migrations and the Prisma client for queries and schema management.
+
+### 6. Shared utilities and domain conventions
+Cross-cutting logic is centralized in files such as:
+- [src/lib/result.ts](src/lib/result.ts)
+- [src/session/AppSession.ts](src/session/AppSession.ts)
+- [src/service/LoggingService.ts](src/service/LoggingService.ts)
+
+This keeps validation, session management, and result handling consistent across the application.
+
+## Notes
+
+This project is intended as a local event board for development and demonstration. It uses a self-signed certificate for HTTPS in development, so browser certificate warnings are expected the first time you connect.
+
+The app is structured around a service/repository pattern and role-aware controllers, making it easy to extend with additional event features or alternate storage backends in the future.
 
 ## Environment Variables
 
-| Variable             | Default                       | Description                |
-| -------------------- | ----------------------------- | -------------------------- |
-| `HTTPS_PORT`         | `3443`                        | HTTPS listener port        |
-| `HTTP_REDIRECT_PORT` | `3000`                        | HTTP → HTTPS redirect port |
-| `HTTPS_KEY_PATH`     | `./certs/localhost-key.pem`   | Path to TLS private key    |
-| `HTTPS_CERT_PATH`    | `./certs/localhost-cert.pem`  | Path to TLS certificate    |
-| `DATABASE_URL`       | `file:./prisma/dev.db`        | SQLite database path       |
-| `SESSION_SECRET`     | `project-starter-demo-secret` | Session signing secret     |
+| Variable | Default | Description |
+| --- | --- | --- |
+| `HTTPS_PORT` | `3443` | HTTPS listener port |
+| `HTTP_REDIRECT_PORT` | `3000` | HTTP-to-HTTPS redirect port |
+| `HTTPS_KEY_PATH` | `./certs/localhost-key.pem` | Path to TLS private key |
+| `HTTPS_CERT_PATH` | `./certs/localhost-cert.pem` | Path to TLS certificate |
+| `DATABASE_URL` | `file:./prisma/dev.db` | SQLite database path |
+| `SESSION_SECRET` | `project-starter-demo-secret` | Session signing secret |
