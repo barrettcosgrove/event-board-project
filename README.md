@@ -3,6 +3,8 @@
 ## Description
 Local Event Board is a role-based event management application that lets organizers create and manage events while giving members a simple way to browse listings, filter by category and date, and RSVP to upcoming activities. The platform is designed to support admin, staff, and user workflows with protected access, attendee tracking, event publishing, and conflict-aware RSVP handling.
 
+> **Note on commit history:** This repository is mirrored from a team project. The original commit history has not been preserved.
+
 ## Overview
 This project is designed for a small organization or community group that needs a simple but structured way to manage events and attendance online. Instead of relying on a generic scheduling tool, Local Event Board centers the workflow around a few clear roles: admins manage the platform, staff organize and publish events, and members browse upcoming activities and respond to invitations.
 
@@ -170,6 +172,13 @@ Cross-cutting logic is centralized in files such as:
 - [src/service/LoggingService.ts](src/service/LoggingService.ts)
 
 This keeps validation, session management, and result handling consistent across the application.
+
+## My Contributions
+
+I implemented the following features for this project:
+
+- **Event Publish and Cancellation Flow** — Status transitions for events from draft to published and cancellation, with proper authorization and state validation
+- **Category and Date Filtering** — Event search and filtering by category and date range in the events listing view
 
 ## Notes
 
