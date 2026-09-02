@@ -26,8 +26,23 @@ The seeded application includes the following demo users:
 | staff@app.test | Sam Staff | staff | password123 |
 | user@app.test | Una User | user | password123 |
 
-### Screenshot
-A polished product screenshot will be added here later once the UI is finalized for presentation.
+### Screenshots
+
+**Admin event dashboard** — Published and draft events with publish and cancel actions.
+
+![Admin event dashboard](Demo%20Screenshots/Demo%20Screenshot%201.png)
+
+**Event status sections** — Published, drafts, and cancelled or past events grouped for organizers.
+
+![Event status sections](Demo%20Screenshots/Demo%20Screenshot%202.png)
+
+**Admin user management** — Add users, assign roles, and remove accounts.
+
+![Admin user management](Demo%20Screenshots/Demo%20Screenshot%203.png)
+
+**Event detail and RSVP** — Event information and attendance actions from a member account.
+
+![Event detail and RSVP](Demo%20Screenshots/Demo%20Screenshot%204.png)
 
 ## Key Features
 
@@ -80,9 +95,19 @@ A polished product screenshot will be added here later once the UI is finalized 
 
 ```bash
 git clone <repository-url>
-cd team1-event-board
+cd event-board-project
 npm install
 ```
+
+### Environment configuration
+
+Copy the example environment file if you do not already have a `.env`:
+
+```bash
+cp .env.example .env
+```
+
+This sets the SQLite database URL, HTTPS ports, certificate paths, and session secret. You can edit `.env` afterward if you need different local values.
 
 ### Database setup
 
